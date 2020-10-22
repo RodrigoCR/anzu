@@ -35,11 +35,11 @@ func (module *Module) Get(usr interface{}) (*One, error) {
 	context := module
 	database := deps.Container.Mgo()
 
-	switch usr.(type) {
+	switch usr := usr.(type) {
 	case bson.ObjectId:
 
 		// Get the user using it's id
-		err := database.C("users").FindId(usr.(bson.ObjectId)).One(&model)
+		err := database.C("users").FindId(usr).One(&model)
 
 		if err != nil {
 
@@ -49,7 +49,7 @@ func (module *Module) Get(usr interface{}) (*One, error) {
 	case bson.M:
 
 		// Get the user using it's id
-		err := database.C("users").Find(usr.(bson.M)).One(&model)
+		err := database.C("users").Find(usr).One(&model)
 
 		if err != nil {
 
@@ -58,7 +58,7 @@ func (module *Module) Get(usr interface{}) (*One, error) {
 
 	case *UserPrivate:
 
-		model = usr.(*UserPrivate)
+		model = usr
 
 	default:
 		panic("Unkown argument")

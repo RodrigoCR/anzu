@@ -21,15 +21,15 @@ type FeedModule struct {
 }
 
 func (feed *FeedModule) Post(where interface{}) (post *Post, err error) {
-	switch where.(type) {
+	switch where := where.(type) {
 	case bson.ObjectId, bson.M:
 		var criteria = bson.M{"deleted_at": bson.M{"$exists": false}}
 
-		switch where.(type) {
+		switch where := where.(type) {
 		case bson.ObjectId:
-			criteria["_id"] = where.(bson.ObjectId)
+			criteria["_id"] = where
 		case bson.M:
-			for k, v := range where.(bson.M) {
+			for k, v := range where {
 				criteria[k] = v
 			}
 		}
@@ -41,7 +41,7 @@ func (feed *FeedModule) Post(where interface{}) (post *Post, err error) {
 			return
 		}
 	case *Post:
-		post = where.(*Post)
+		post = where
 	default:
 		panic("Unkown argument")
 	}
@@ -52,14 +52,14 @@ func (feed *FeedModule) Post(where interface{}) (post *Post, err error) {
 
 func (feed *FeedModule) LightPost(post interface{}) (*LightPost, error) {
 
-	switch post.(type) {
+	switch post := post.(type) {
 	case bson.ObjectId:
 
 		scope := LightPostModel{}
 		database := deps.Container.Mgo()
 
 		// Use light post model
-		err := database.C("posts").FindId(post.(bson.ObjectId)).Select(lightPostFields).One(&scope)
+		err := database.C("posts").FindId(post).Select(lightPostFields).One(&scope)
 
 		if err != nil {
 
@@ -77,7 +77,7 @@ func (feed *FeedModule) LightPost(post interface{}) (*LightPost, error) {
 
 func (feed *FeedModule) LightPosts(posts interface{}) ([]LightPostModel, error) {
 
-	switch posts.(type) {
+	switch posts := posts.(type) {
 	case []bson.ObjectId:
 
 		var list []LightPostModel
@@ -85,7 +85,7 @@ func (feed *FeedModule) LightPosts(posts interface{}) ([]LightPostModel, error) 
 		database := deps.Container.Mgo()
 
 		// Use light post model
-		err := database.C("posts").Find(bson.M{"_id": bson.M{"$in": posts.([]bson.ObjectId)}}).Select(lightPostFields).All(&list)
+		err := database.C("posts").Find(bson.M{"_id": bson.M{"$in": posts}}).Select(lightPostFields).All(&list)
 		if err != nil {
 			return nil, exceptions.NotFound{"Invalid posts id. Not found."}
 		}
@@ -99,7 +99,7 @@ func (feed *FeedModule) LightPosts(posts interface{}) ([]LightPostModel, error) 
 		database := deps.Container.Mgo()
 
 		// Use light post model
-		err := database.C("posts").Find(posts.(bson.M)).Select(lightPostFields).All(&list)
+		err := database.C("posts").Find(posts).Select(lightPostFields).All(&list)
 		if err != nil {
 			return nil, exceptions.NotFound{"Invalid posts criteria. Not found."}
 		}

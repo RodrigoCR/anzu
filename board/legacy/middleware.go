@@ -115,7 +115,7 @@ func (di *MiddlewareAPI) Authorization() gin.HandlerFunc {
 				})
 
 				// Branch out into the possible error from signing
-				switch err.(type) {
+				switch err := err.(type) {
 				case nil:
 
 					if !signed.Valid { // but may still be invalid
@@ -129,7 +129,7 @@ func (di *MiddlewareAPI) Authorization() gin.HandlerFunc {
 
 				case *jwt.ValidationError: // Something went wrong during validation
 
-					signingError := err.(*jwt.ValidationError)
+					signingError := err
 
 					switch signingError.Errors {
 					case jwt.ValidationErrorExpired:
