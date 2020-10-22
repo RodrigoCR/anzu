@@ -81,8 +81,7 @@ func (this API) Create(c *gin.Context) {
 
 	content := html.EscapeString(form.Content)
 
-	var assets []string
-	assets = assetURL.FindAllString(content, -1)
+	var assets []string = assetURL.FindAllString(content, -1)
 
 	// Empty participants list - only author included
 	users := []bson.ObjectId{uid}
